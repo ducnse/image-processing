@@ -30,16 +30,19 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util.js';
     /**************************************************************************** */
   app.get( "/filteredimage", async (req, res) => {
     let image_url = req.query.image_url;
+    let cannotProcess = false;
     let filteredpath = await filterImageFromURL(image_url).catch((err) => {
-      console.log(`Cannot process the image link provided: ${image_url}`);
-      return res.status(422).send(`Cannot process the image link provided: ${image_url}`);
+      cannotProcess = true
     })
 
-    if (!filteredpath) {
+    if (cannotProcess) {
+      console.log(`Cannot process the image link provided: ${image_url}`);
+      return res.status(422).send(`Cannot process the image link provided: ${image_url}`);
+    } else {
       res.status(200).sendFile(filteredpath, function() {
         deleteLocalFiles([filteredpath]);
       });
-    }
+    }    
   } );
   //! END @TODO1
     
